@@ -119,9 +119,9 @@ while True:
         # Press the "Esc" button to exist the video
         cv2.destroyAllWindows()
         break
-    elif  == ord("s"):
+    elif  k == ord("s"):
         # Press the 'S' button to save the frame
-        cv2.imwrite("image2.jpg", frame)
+        cv2.imwrite("image.jpg", frame)
         cv2.destroyAllWindows()
         break
 
