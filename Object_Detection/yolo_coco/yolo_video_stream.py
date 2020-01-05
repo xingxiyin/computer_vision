@@ -114,12 +114,12 @@ while True:
     cv2.imshow("img", frame)
 
     # Keep showing the image(frame), until we press the "Esc" button
-    k=cv2.waitKey(1)
+    k = cv2.waitKey(1)
     if k == 27:
         # Press the "Esc" button to exist the video
         cv2.destroyAllWindows()
         break
-    elif  k == ord("s"):
+    elif k == ord("s"):
         # Press the 'S' button to save the frame
         cv2.imwrite("image.jpg", frame)
         cv2.destroyAllWindows()
