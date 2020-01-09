@@ -5,8 +5,8 @@ matplotlib.use("Agg")
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import LearningRateScheduler
 from keras.optimizers import SGD
-from pyimagesearch.resnet import ResNet
-from pyimagesearch import config
+import network
+import config
 from sklearn.metrics import classification_report
 from imutils import paths
 import matplotlib.pyplot as plt
@@ -88,8 +88,8 @@ testGen = valAug.flow_from_directory(
 
 
 # initialize our ResNet model and compile it
-model = ResNet.build(64, 64, 3, 2, (3, 4, 6),
-	(64, 128, 256, 512), reg=0.0005)
+model = network.build(64, 64, 3, 2, (3, 4, 6),
+	        (64, 128, 256, 512), reg=0.0005)
 opt = SGD(lr=INIT_LR, momentum=0.9)
 model.compile(loss="binary_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
@@ -109,16 +109,14 @@ H = model.fit_generator(
 # make predictions on the data
 print("[INFO] evaluating network...")
 testGen.reset()
-predIdxs = model.predict_generator(testGen,
-                                   steps=(totalTest // BS) + 1)
+predIdxs = model.predict_generator(testGen, steps=(totalTest // BS) + 1)
 
 # for each image in the testing set we need to find the index of the
 # label with corresponding largest predicted probability
 predIdxs = np.argmax(predIdxs, axis=1)
 
 # show a nicely formatted classification report
-print(classification_report(testGen.classes, predIdxs,
-                            target_names=testGen.class_indices.keys()))
+print(classification_report(testGen.classes, predIdxs, target_names=testGen.class_indices.keys()))
 
 # plot the training loss and accuracy
 N = NUM_EPOCHS
