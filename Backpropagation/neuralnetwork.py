@@ -97,3 +97,47 @@ class NeuralNetwork:
             delta = delta * self.sigmoid_deriv(A[layer])
             deltas.append(delta)
 
+
+        # Since we looped over the layers in reverse order we need to reverse the deltas
+        deltas = deltas[::-1]
+
+        # Weight Update phase
+        # Loop over the layers
+        for layer in np.arange(0, len(self.W)):
+            # update our weights by taking the dot product of the layer activations with
+            # their respective deltas, then multiplying this value by some small learning
+            # rate and adding to our weight matrix -- this is where the actual "learning" takes
+            # place
+            self.W[layer] += -self.alpha * A[layer].T.dot(deltas[layer])
+
+
+    def predict(self, X, addBias=True):
+        # Initialize the output prediction as the input features -- this value willb
+        # be (forward) propagated through the network to obtain the final prediction
+        pred = np.atleast_2d(X)
+
+        # Check to see if the bias column should be added
+        if addBias:
+            # Inset a column of 1's as the last entry in the feature
+            # matrix (bias)
+            pred = np.c_[p, np.ones((pred.shape[0]))]
+
+        # Loop over our layers in the network
+        for layer in np.arange(0, len(self.W)):
+            # Computing the output prediction is as simple as taking
+            # the dot product between the current activation value 'p'
+            # and the weight matrix associated with the current layer,
+            # then passing this value through a nonlinear activation function
+            pred = self.sigmoid(np.dot(pred, self.W[layer]))
+
+        # return the predicted value
+        return pred
+
+    def calculate_loss(self, X, targets):
+        # Making predictions for the input data points then compute the loss
+        targets = np.atleast_2d(targets)
+        predictions = self.predict(X, addBias=True)
+        loss = 0.5 * np.sum((predictions - targets) ** 2)
+
+        # Return the loss
+        return loss
