@@ -2,29 +2,13 @@
 from configs import data_config
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from HDF5DatasetWriter import HDF5DatasetWriter
 from imutils import paths
 import progressbar
 import numpy as np
-import hdfs
-import h5py
 import json
 import cv2
 import os
-
-def HDF5DatasetWriter(datashape, outputPath, dataKey="image", bufSize=1000):
-    # Check if the ouput path exists or not. If existed, raise an exception
-    if os.path.exists(outputPath):
-        raise ValueError("The supplied 'outputPath' already 'exists and cannot be overwriten Manually delete the file before continuing", outputPath)
-
-    # Open teh HDF5 database for writting and create two datasets:
-    # One to store the images/features and another to store the class labels
-    db = h5py.File(outputPath, "w")
-    data = db.create_dataset(dataKey, datashape, dtype="float")
-    labels = db.create_dataset("labels", (datashape[0],), dtype="int")
-
-    # Store the buffer size, the initialize the buffer itself along with the index
-    # into the dataset
-    buffer = {"data":[], "labels":[]}
 
 
 
@@ -52,8 +36,55 @@ trainLabels = le.fit_transform(trainLabels)
 datasets = [
     ("train", trainPaths, trainLabels, data_config.TRAIN_HDF5),
     ("val", valPaths, valLabels, data_config.VAL_HDF5),
-    ("test", testPaths, testLabels, data_config.TEST_HDF5)]
+    ("test", testPaths, testLabels, data_config.TEST_HDF5)
+    ]
 
 # Initialize the image preprocessor and the list of RGB channel average
-
 (R, G, B) = ([], [], [])
+
+# Loop over the dataset tuples
+for (dType, paths, labels, outputPath) in datasets:
+    # Create HDF5 weiter
+    print("[INFO] building {}...".format(outputPath))
+    writer = HDF5DatasetWriter((len(paths), 256, 256, 3), outputPath)
+
+    # Initialize the progress bar
+    widgets = ["Building Dataset: ", progressbar.Percentage(), " ",
+               progressbar.Bar(), " ", progressbar.ETA()]
+    pbar = progressbar.ProgressBar(maxval=len(paths), widgets=widgets).start()
+
+    # Loop over the image paths
+    for (i, (path, label)) in enumerate(zip(paths, labels)):
+        # Load the image and process it
+        image = cv2.imread(path)
+        # print("Original data shape: ", image.shape)
+        image = writer.preprocess(image)
+        # print("Cropped data shape: ", image.shape)
+
+        # If we are building the training dataset, then compute the mean of each
+        # of each channel in the image, then update the respective lists
+        if dType == "train":
+            (b, g, r) = cv2.mean(image)[:3]
+            R.append(r)
+            G.append(g)
+            B.append(b)
+
+        # Add the image and label # to the HDFS dataset
+        # print("Cropped data shape: ",i, image.shape, label)
+        writer.add([image], [label])
+        pbar.update(i)
+
+    # Close the HDFS writer
+    pbar.finish()
+    writer.close()
+
+# Construct a dictionary of average, then serialize the means to a JSON file
+print("[INFO] Serializing means...")
+D = {"R": np.mean(R), "G":np.mean(G), "B":np.mean(B)}
+# print(D)
+with open(data_config.DATASET_MEAN, "w") as file:
+    file.write(json.dumps(D))
+    # file.close()
+# file = open(data_config.DATASET_MEAN, "w")
+# file.write(json.dumps(D))
+# file.close()
