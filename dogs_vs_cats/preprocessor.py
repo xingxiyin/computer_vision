@@ -12,7 +12,7 @@ class SimplePreprocessor:
         self.height = height
         self.inter = inter
 
-    def prprocess(self, image):
+    def preprocess(self, image):
         # Resize the image to a fixed size, ignoring the aspect ration
         return cv2.resize(image, (self.width, self.height), interpolation=self.inter)
 
