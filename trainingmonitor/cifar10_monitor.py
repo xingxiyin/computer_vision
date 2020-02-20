@@ -4,11 +4,12 @@ matplotlib.use("Agg")
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import classification_report
 from model_structure.minivggnet import MiniVGGNet
-from trainingmonitor.trainingmonitor import TrainingMonitor
+from trainingmonitor import TrainingMonitor
 from keras.optimizers import SGD
 from keras.datasets import cifar10
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import argparse
 
 # Construct the argument parse and parse the arguments
@@ -32,7 +33,7 @@ def step_decay(epoch, initAlpha=0.01, factor=0.5, dropEvery=5):
 print("[INFO] loading CIFAR-10 data...")
 ((trainX, trainY), (testX, testY)) = cifar10.load_data()
 trainX = trainX.astype("float") / 255.0
-testX = testX.astyp("float") / 255.0
+testX = testX.astype("float") / 255.0
 
 # Convert the labels from integers to vectors
 lb = LabelBinarizer()

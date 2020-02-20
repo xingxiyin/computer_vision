@@ -105,7 +105,7 @@ class DeeperGoogleNet:
 
         # Define the model input, followed by a sequence of CONV -> POOL -> (CONV *2) -> POOL layers
         inputs = Input(shape=inputShape)
-        x = DeeperGoogleNet.conv_module(x=inputs, filters=64, kernel_size=(5, 5), stride=(1, 1), chanDim=chanDim, reg=reg. name="block1")
+        x = DeeperGoogleNet.conv_module(x=inputs, filters=64, kernel_size=(5, 5), stride=(1, 1), chanDim=chanDim, reg=reg, name="block1")
         x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), padding="same", name="pool1")(x)
         x = DeeperGoogleNet.conv_module(x=x, filters=64, kernel_size=(1, 1), stride=(1, 1), chanDim=chanDim, reg=reg, name="block2")
         x = DeeperGoogleNet.conv_module(x=x, filters=192, kernel_size=(3, 3), stride=(1, 1), chanDim=chanDim, reg=reg,name="block23")
