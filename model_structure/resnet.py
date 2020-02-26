@@ -24,7 +24,7 @@ class ResNet:
         :param stride: The stride of the convolution
         :param chanDim: The channel dimension. indecated that either "channels last" or "channels first" ordering. default is channels last
         :param red: A boolean value which will control whether we are reducing spatial dimensions (True) or not (False)
-        :param reg: The regularization strenght to all CONV layers in the residual module
+        :param reg: The regularization strength to all CONV layers in the residual module
         :param bnEps: Responsible for avoiding "divison by zero" errors when normalizing inputs
         :param bnMom: Control the momentum for the moving average
         :return:

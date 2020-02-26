@@ -3,7 +3,8 @@ import matplotlib
 matplotlib.use("Agg")
 
 from sklearn.preprocessing import LabelBinarizer
-from minigooglenet import MiniGooogleNet
+from lenet import LeNet
+from trainingmonitor import TrainingMonitor
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import LearningRateScheduler
 from sklearn.metrics import classification_report
@@ -54,12 +55,14 @@ aug = ImageDataGenerator(width_shift_range=0.1,
                          fill_mode="nearest")
 
 # Construct the set of callbacks
-callbacks = [LearningRateScheduler(poly_decay)]
+figPath = os.path.sep.join([args["output"], "{}.png".format(os.getpid())])
+jsonPath = os.path.sep.join([args["output"], "{}.json".format(os.getpid())])
+callbacks = [TrainingMonitor(figPath=figPath, jsonPath=jsonPath), LearningRateScheduler(poly_decay)]
 
 # Initialize the optimizer and model
 print("[INFO] Compliling model...")
 opt = SGD(lr=INIT_LR, momentum=0.9)
-model = MiniGooogleNet.build(width=32, height=32, depth=3, classes=10)
+model = LeNet.build(width=32, height=32, depth=3, classes=10)
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
 
 # Train the network
